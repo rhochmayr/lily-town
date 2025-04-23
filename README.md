@@ -1,10 +1,10 @@
 # Lily Town 🏠💻💌
 
-[Live Demo](https://www.convex.dev/ai-town)
+[Live Demo](https://lily-town.tadpole-tech.xyz)
 
 [Join our community Discord: AI Stack Devs](https://discord.gg/PQUmTBTGmT)
 
-<img width="1454" alt="Screen Shot 2023-08-14 at 10 01 00 AM" src="https://github.com/a16z-infra/ai-town/assets/3489963/a4c91f17-23ed-47ec-8c4e-9f9a8505057d">
+![image](https://github.com/user-attachments/assets/4c5ccb9c-1bd1-4f22-bfba-000575d19d39)
 
 Lily Town is a virtual town where AI characters live, chat and socialize.
 
