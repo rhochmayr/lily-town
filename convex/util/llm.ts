@@ -4,7 +4,7 @@ const OPENAI_EMBEDDING_DIMENSION = 1536;
 const TOGETHER_EMBEDDING_DIMENSION = 768;
 const OLLAMA_EMBEDDING_DIMENSION = 1024;
 
-export const EMBEDDING_DIMENSION: number = OLLAMA_EMBEDDING_DIMENSION;
+export const EMBEDDING_DIMENSION: number = OPENAI_EMBEDDING_DIMENSION;
 
 export function detectMismatchedLLMProvider() {
   switch (EMBEDDING_DIMENSION) {
@@ -35,16 +35,31 @@ export function detectMismatchedLLMProvider() {
 }
 
 export interface LLMConfig {
-  provider: 'openai' | 'together' | 'ollama' | 'custom';
+  provider: 'openai' | 'together' | 'ollama' | 'custom' | 'custom-openai';
   url: string; // Should not have a trailing slash
   chatModel: string;
   embeddingModel: string;
   stopWords: string[];
   apiKey: string | undefined;
+  embeddingApiKey?: string; // Optional API key for embeddings
 }
 
 export function getLLMConfig(): LLMConfig {
   let provider = process.env.LLM_PROVIDER;
+
+  if (process.env.LLM_API_URL && process.env.OPENAI_API_KEY) {
+    // Use custom LLM for chat and OpenAI for embeddings
+    return {
+      provider: 'custom-openai',
+      url: process.env.LLM_API_URL, // Custom LLM API URL for chat
+      chatModel: process.env.LLM_MODEL ?? 'your-chat-model', // Custom chat model
+      embeddingModel: process.env.OPENAI_EMBEDDING_MODEL ?? 'text-embedding-ada-002', // OpenAI embedding model
+      stopWords: [],
+      apiKey: process.env.LLM_API_KEY, // API key for custom LLM
+      embeddingApiKey: process.env.OPENAI_API_KEY, // Separate API key for OpenAI embeddings
+    };
+  }
+
   if (provider ? provider === 'openai' : process.env.OPENAI_API_KEY) {
     if (EMBEDDING_DIMENSION !== OPENAI_EMBEDDING_DIMENSION) {
       throw new Error('EMBEDDING_DIMENSION must be 1536 for OpenAI');
@@ -109,12 +124,11 @@ export function getLLMConfig(): LLMConfig {
   };
 }
 
-const AuthHeaders = (): Record<string, string> =>
-  getLLMConfig().apiKey
-    ? {
-        Authorization: 'Bearer ' + getLLMConfig().apiKey,
-      }
-    : {};
+const AuthHeaders = (isEmbedding = false): Record<string, string> => {
+  const config = getLLMConfig();
+  const key = isEmbedding ? config.embeddingApiKey : config.apiKey;
+  return key ? { Authorization: 'Bearer ' + key } : {};
+};
 
 // Overload for non-streaming
 export async function chatCompletion(
@@ -204,6 +218,8 @@ export async function tryPullOllama(model: string, error: string) {
 
 export async function fetchEmbeddingBatch(texts: string[]) {
   const config = getLLMConfig();
+
+  // Handle Ollama provider
   if (config.provider === 'ollama') {
     return {
       ollama: true as const,
@@ -212,18 +228,24 @@ export async function fetchEmbeddingBatch(texts: string[]) {
       ),
     };
   }
+
+  // Use OpenAI endpoint for embeddings if provider is custom-openai
+  const embeddingUrl =
+    config.provider === 'custom-openai'
+      ? 'https://api.openai.com/v1/embeddings'
+      : config.url + '/v1/embeddings';
+
   const {
     result: json,
     retries,
     ms,
   } = await retryWithBackoff(async () => {
-    const result = await fetch(config.url + '/v1/embeddings', {
+    const result = await fetch(embeddingUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        ...AuthHeaders(),
+        ...AuthHeaders(true), // Use embedding API key
       },
-
       body: JSON.stringify({
         model: config.embeddingModel,
         input: texts.map((text) => text.replace(/\n/g, ' ')),
@@ -237,12 +259,17 @@ export async function fetchEmbeddingBatch(texts: string[]) {
     }
     return (await result.json()) as CreateEmbeddingResponse;
   });
+
+  // Validate the number of embeddings returned
   if (json.data.length !== texts.length) {
     console.error(json);
     throw new Error('Unexpected number of embeddings');
   }
+
+  // Sort embeddings by index
   const allembeddings = json.data;
   allembeddings.sort((a, b) => a.index - b.index);
+
   return {
     ollama: false as const,
     embeddings: allembeddings.map(({ embedding }) => embedding),

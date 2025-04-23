@@ -40,8 +40,7 @@
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb)))
-    rgb(var(--background-start-rgb));
+  background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
 }
 
 .game-background {
@@ -60,6 +59,14 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   filter: drop-shadow(0px 0.08em 0px #6e2146);
+}
+
+.game-title-lilytown {
+  background: linear-gradient(to bottom, #e0fff9, #14c7c3);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0px 0.08em 0px #181c21);
 }
 
 .game-frame {
@@ -155,8 +162,8 @@ body {
     font-size: 16px;
   }
 
-  .button > div,
-  .button > span {
+  .button>div,
+  .button>span {
     vertical-align: top;
     line-height: 1;
   }

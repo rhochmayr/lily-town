@@ -69,6 +69,16 @@ export function Messages({
     return null;
   }
   const messageNodes: { time: number; node: React.ReactNode }[] = messages.map((m) => {
+    // Define the prefix to remove
+    const prefixToRemove = '<|start_header_id|>assistant<|end_header_id|>';
+    let displayContent = m.text;
+
+    // Check if the message starts with the prefix
+    if (displayContent.startsWith(prefixToRemove)) {
+      // Remove the prefix and any leading whitespace
+      displayContent = displayContent.substring(prefixToRemove.length).trimStart();
+    }
+
     const node = (
       <div key={`text-${m._id}`} className="leading-tight mb-6">
         <div className="flex gap-4">
@@ -78,7 +88,8 @@ export function Messages({
           </time>
         </div>
         <div className={clsx('bubble', m.author === humanPlayerId && 'bubble-mine')}>
-          <p className="bg-white -mx-3 -my-1">{m.text}</p>
+          {/* Render the potentially modified content */}
+          <p className="bg-white -mx-3 -my-1">{displayContent}</p>
         </div>
       </div>
     );
@@ -89,8 +100,9 @@ export function Messages({
   const membershipNodes: typeof messageNodes = [];
   if (conversation.kind === 'active') {
     for (const [playerId, m] of conversation.doc.participants) {
-      const playerName = descriptions?.playerDescriptions.find((p) => p.playerId === playerId)
-        ?.name;
+      const playerName = descriptions?.playerDescriptions.find(
+        (p) => p.playerId === playerId,
+      )?.name;
       let started;
       if (m.status.kind === 'participating') {
         started = m.status.started;
@@ -108,8 +120,9 @@ export function Messages({
     }
   } else {
     for (const playerId of conversation.doc.participants) {
-      const playerName = descriptions?.playerDescriptions.find((p) => p.playerId === playerId)
-        ?.name;
+      const playerName = descriptions?.playerDescriptions.find(
+        (p) => p.playerId === playerId,
+      )?.name;
       const started = conversation.doc.created;
       membershipNodes.push({
         node: (

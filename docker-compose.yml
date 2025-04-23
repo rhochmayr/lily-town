@@ -9,7 +9,7 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     environment:
-      - VITE_CONVEX_URL=http://127.0.0.1:${PORT:-3210}
+      - VITE_CONVEX_URL=${VITE_CONVEX_URL:-}
     networks:
       - ai-town-network
   backend:
@@ -25,8 +25,8 @@ services:
       - INSTANCE_SECRET=${INSTANCE_SECRET:-}
       - CONVEX_RELEASE_VERSION_DEV=${CONVEX_RELEASE_VERSION_DEV:-}
       - ACTIONS_USER_TIMEOUT_SECS=${ACTIONS_USER_TIMEOUT_SECS:-}
-      - CONVEX_CLOUD_ORIGIN=${URL_BASE:-http://127.0.0.1}:${PORT:-3210}
-      - CONVEX_SITE_ORIGIN=${URL_BASE:-http://127.0.0.1}:${SITE_PROXY_PORT:-3211}
+      - CONVEX_CLOUD_ORIGIN=${CONVEX_CLOUD_ORIGIN:-}
+      - CONVEX_SITE_ORIGIN=${CONVEX_SITE_ORIGIN:-}
       - DATABASE_URL=${DATABASE_URL:-}
     healthcheck:
       test: curl -f http://localhost:3210/version
@@ -40,10 +40,20 @@ services:
     ports:
       - '${DASHBOARD_PORT:-6791}:6791'
     environment:
-      - NEXT_PUBLIC_DEPLOYMENT_URL=http://127.0.0.1:${PORT:-3210}
+      - NEXT_PUBLIC_DEPLOYMENT_URL=${NEXT_PUBLIC_DEPLOYMENT_URL:-}
     depends_on:
       backend:
         condition: service_healthy
+
+  tunnel:
+    container_name: cloudflared-lilytown
+    image: cloudflare/cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN:-}
+    networks:
+      - ai-town-network
 
 volumes:
   data:

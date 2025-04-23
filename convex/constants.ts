@@ -68,6 +68,18 @@ export const ACTIVITIES = [
   { description: 'reading a book', emoji: '📖', duration: 60_000 },
   { description: 'daydreaming', emoji: '🤔', duration: 60_000 },
   { description: 'gardening', emoji: '🥕', duration: 60_000 },
+  { description: 'training a model on-chain', emoji: '🤖', duration: 60_000 },
+  { description: 'writing a research paper', emoji: '📝', duration: 60_000 },
+  { description: 'debugging a smart contract', emoji: '🪲', duration: 60_000 },
+  { description: 'staking GPUs', emoji: '🎰', duration: 60_000 },
+  { description: 'cycling through the woods', emoji: '🚴‍♂️', duration: 60_000 },
+  { description: 'hosting a DeSci meetup', emoji: '🎤', duration: 60_000 },
+  { description: 'visualizing omics data', emoji: '🧬', duration: 60_000 },
+  { description: 'reviewing pull requests', emoji: '🔍', duration: 60_000 },
+  { description: 'experimenting with new APIs', emoji: '🧪', duration: 60_000 },
+  { description: 'collecting scientific datasets', emoji: '📊', duration: 60_000 },
+  { description: 'building on Lilypad', emoji: '🛠️', duration: 60_000 },
+  { description: 'posting DeSci memes', emoji: '🐸', duration: 60_000 },
 ];
 
 export const ENGINE_ACTION_DURATION = 30000;
