@@ -92,7 +92,7 @@ export default function Home() {
           <div className="flex gap-4 flex-grow pointer-events-none">
             <FreezeButton />
             <MusicButton />
-            <Button href="https://github.com/Lilypad-Tech/lilypad" imgUrl={starImg}>
+            <Button href="https://github.com/rhochmayr/lily-town" imgUrl={starImg}>
               Star
             </Button>
             <InteractButton />
